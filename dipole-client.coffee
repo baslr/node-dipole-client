@@ -11,15 +11,15 @@ connectIp = process.argv[2]
 socket    = ioClient.connect "http://#{connectIp}:10001"
 
 socket.on 'connect', ->
-  console.log "SOCK -> CONNECT"
+  console.log 'SOCK -> CONNECT'
   exec 'hostname', (e, stdout, stderr) ->
     socket.emit 'hostname', stdout.split('\n')[0]
 
 socket.on 'disconnect', ->
-  console.error "SOCK -> DISCONNECT"
+  console.log 'SOCK -> DISCONNECT'
   
 socket.on 'reconnect', (a, b) ->
-  console.error "SOCK -> RECONNECT"
+  console.log 'SOCK -> RECONNECT'
   console.dir a
   console.dir b
   
@@ -29,5 +29,5 @@ socket.on 'command', (command) ->
     code = signal = 0
     if e?
       code   = e.code
-      sig	nal = e.signal
+      signal = e.signal
     socket.emit 'command-done', {code:code, signal:signal, stdout:stdout, stderr:stderr, id:command.id}
