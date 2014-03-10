@@ -8,7 +8,15 @@ if not process.argv[2]?
   process.exit()
 
 connectIp = process.argv[2]
-socket    = ioClient.connect "http://#{connectIp}:10001"
+  
+socket    = ioClient.connect "http://#{connectIp}:10001",
+  {
+    'max reconnection attempts': 'Infinity'
+    'reconnection delay': 1000
+  }
+
+socket.on 'error', (e) ->
+  console.log e
 
 socket.on 'connect', ->
   console.log 'SOCK -> CONNECT'
@@ -24,10 +32,10 @@ socket.on 'reconnect', (a, b) ->
   console.dir b
   
 socket.on 'command', (command) ->
-  console.log "#{command.id}, COMMAND: #{command.cmd}"
-  exec command.cmd, {maxBuffer: 10*1024*1024}, (e, stdout, stderr) ->
-    code = signal = 0
-    if e?
-      code   = e.code
-      signal = e.signal
-    socket.emit 'command-done', {code:code, signal:signal, stdout:stdout, stderr:stderr, id:command.id}
+  try
+    exec command.cmd, {maxBuffer: 10*1024*1024}, (e, stdout, stderr) ->
+      code = signal = 0
+      if e?
+        code   = e.code
+        signal = e.signal
+      socket.emit 'command-done', {code:code, signal:signal, stdout:stdout, stderr:stderr, id:command.id}
